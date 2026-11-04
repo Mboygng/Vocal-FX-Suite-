@@ -1,0 +1,291 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vocal FX Suite Builder</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #090909;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+header {
+    padding: 22px;
+    background: #151515;
+    border-bottom: 2px solid #ed2020;
+    text-align: center;
+}
+
+h1 {
+    color: #ff3030;
+    margin: 0;
+    letter-spacing: 2px;
+}
+
+main {
+    max-width: 1100px;
+    margin: auto;
+    padding: 18px;
+}
+
+.panel {
+    background: #171717;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 18px;
+}
+
+h2 {
+    color: #ff3535;
+    font-size: 19px;
+}
+
+button, select, input {
+    background: #242424;
+    color: white;
+    border: 1px solid #555;
+    padding: 12px;
+    border-radius: 7px;
+    margin: 5px 0;
+}
+
+button {
+    cursor: pointer;
+}
+
+button:hover {
+    border-color: red;
+}
+
+.primary {
+    background: #c71919;
+    border: none;
+    font-weight: bold;
+    width: 100%;
+    padding: 17px;
+    font-size: 16px;
+}
+
+.module {
+    background: #222;
+    border-left: 4px solid #ed2424;
+    padding: 13px;
+    margin: 10px 0;
+    border-radius: 7px;
+}
+
+.module strong {
+    color: #ff4040;
+}
+
+.module button {
+    float: right;
+    padding: 5px 10px;
+}
+
+.module input[type=range] {
+    width: 100%;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 8px;
+}
+
+.small {
+    color: #999;
+    font-size: 12px;
+}
+
+#status {
+    color: #ff5555;
+    padding: 10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>VOCAL FX SUITE</h1>
+    <p>PROFESSIONAL VST3 BUILDER</p>
+</header>
+
+<main>
+
+<section class="panel">
+    <h2>Nombre del plugin</h2>
+    <input id="pluginName" value="Vocal FX Suite"
+           style="width:100%">
+    <p class="small">Nuestro plugin maestro para FL Studio.</p>
+</section>
+
+<section class="panel">
+    <h2>Agregar efectos</h2>
+
+    <div class="grid">
+        <button onclick="addModule('Auto-Tune')">AUTO-TUNE</button>
+        <button onclick="addModule('Reverb')">REVERB</button>
+        <button onclick="addModule('Delay')">DELAY</button>
+        <button onclick="addModule('Chorus')">CHORUS</button>
+        <button onclick="addModule('Distortion')">DISTORTION</button>
+        <button onclick="addModule('Compressor')">COMPRESSOR</button>
+        <button onclick="addModule('Equalizer')">EQUALIZER</button>
+        <button onclick="addModule('De-Esser')">DE-ESSER</button>
+        <button onclick="addModule('Pitch')">PITCH</button>
+        <button onclick="addModule('Formant')">FORMANT</button>
+        <button onclick="addModule('Harmonizer')">HARMONIZER</button>
+        <button onclick="addModule('Doubler')">DOUBLER</button>
+        <button onclick="addModule('Flanger')">FLANGER</button>
+        <button onclick="addModule('Phaser')">PHASER</button>
+        <button onclick="addModule('Saturation')">SATURATION</button>
+        <button onclick="addModule('Limiter')">LIMITER</button>
+        <button onclick="addModule('Gate')">GATE</button>
+        <button onclick="addModule('Tremolo')">TREMOLO</button>
+    </div>
+</section>
+
+<section class="panel">
+    <h2>Cadena de efectos</h2>
+    <p class="small">Agrega los módulos que tendrá nuestro plugin.</p>
+    <div id="modules"></div>
+</section>
+
+<section class="panel">
+    <h2>Diseño</h2>
+    <label>Color principal</label>
+    <input type="color" id="accent" value="#ff2525">
+    <br>
+    <label>Estilo</label>
+    <select id="theme">
+        <option>Dark Red</option>
+        <option>Black Red</option>
+        <option>Dark Neon</option>
+    </select>
+</section>
+
+<section class="panel">
+    <h2>Constructor VST3</h2>
+    <p class="small">
+        Exporta la configuración de nuestros módulos.
+        Después se utilizará para generar el código C++ y compilarlo.
+    </p>
+
+    <button class="primary" onclick="exportProject()">
+        EXPORTAR PROYECTO
+    </button>
+
+    <p id="status">Esperando...</p>
+</section>
+
+</main>
+
+<script>
+
+let modules = [];
+let nextId = 1;
+
+function addModule(name) {
+    modules.push({
+        id: nextId++,
+        name: name,
+        enabled: true,
+        amount: 50
+    });
+
+    renderModules();
+}
+
+function removeModule(id) {
+    modules = modules.filter(m => m.id !== id);
+    renderModules();
+}
+
+function updateAmount(id, value) {
+    const module = modules.find(m => m.id === id);
+    if (module) module.amount = Number(value);
+}
+
+function toggleModule(id, enabled) {
+    const module = modules.find(m => m.id === id);
+    if (module) module.enabled = enabled;
+}
+
+function renderModules() {
+    const container = document.getElementById("modules");
+    container.innerHTML = "";
+
+    modules.forEach(m => {
+        const div = document.createElement("div");
+        div.className = "module";
+
+        const title = document.createElement("strong");
+        title.textContent = m.name;
+
+        const remove = document.createElement("button");
+        remove.textContent = "ELIMINAR";
+        remove.onclick = () => removeModule(m.id);
+
+        const enabled = document.createElement("input");
+        enabled.type = "checkbox";
+        enabled.checked = m.enabled;
+        enabled.onchange = () => toggleModule(m.id, enabled.checked);
+
+        const label = document.createElement("label");
+        label.append(enabled, document.createTextNode(" Activado"));
+
+        const slider = document.createElement("input");
+        slider.type = "range";
+        slider.min = 0;
+        slider.max = 100;
+        slider.value = m.amount;
+        slider.oninput = () => updateAmount(m.id, slider.value);
+
+        div.append(title, remove, document.createElement("br"),
+                   label, slider);
+
+        container.appendChild(div);
+    });
+}
+
+function exportProject() {
+    const project = {
+        name: document.getElementById("pluginName").value,
+        accent: document.getElementById("accent").value,
+        theme: document.getElementById("theme").value,
+        modules: modules
+    };
+
+    const file = new Blob(
+        [JSON.stringify(project, null, 2)],
+        {type: "application/json"}
+    );
+
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(file);
+    link.download = "vocal-fx-project.json";
+    link.click();
+
+    URL.revokeObjectURL(link.href);
+
+    document.getElementById("status").textContent =
+        "Configuración exportada correctamente.";
+}
+
+</script>
+
+</body>
+  </html>
+  
