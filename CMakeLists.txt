@@ -1,0 +1,59 @@
+
+cmake_minimum_required(VERSION 3.22)
+
+project(VocalFXSuite VERSION 1.0.0)
+
+include(FetchContent)
+
+# Download JUCE automatically on the PC
+FetchContent_Declare(
+    JUCE
+    GIT_REPOSITORY https://github.com/juce-framework/JUCE.git
+    GIT_TAG 8.0.4
+    GIT_SHALLOW TRUE
+)
+
+FetchContent_MakeAvailable(JUCE)
+
+# Main VST3 plugin
+juce_add_plugin(VocalFXSuite
+    COMPANY_NAME "VocalFX"
+    PLUGIN_MANUFACTURER_CODE Vfx1
+    PLUGIN_CODE Vfx2
+    FORMATS VST3
+    PRODUCT_NAME "Vocal FX Suite"
+    DESCRIPTION "Professional Modular Vocal Effects"
+    IS_SYNTH FALSE
+    NEEDS_MIDI_INPUT FALSE
+    NEEDS_MIDI_OUTPUT FALSE
+    IS_MIDI_EFFECT FALSE
+    EDITOR_WANTS_KEYBOARD_FOCUS FALSE
+    COPY_PLUGIN_AFTER_BUILD FALSE
+)
+
+# Source files
+target_sources(VocalFXSuite
+    PRIVATE
+        Source/PluginProcessor.cpp
+        Source/PluginProcessor.h
+        Source/PluginEditor.cpp
+        Source/PluginEditor.h
+)
+
+# JUCE modules
+target_link_libraries(VocalFXSuite
+    PRIVATE
+        juce::juce_audio_utils
+        juce::juce_dsp
+
+    PUBLIC
+        juce::juce_recommended_config_flags
+        juce::juce_recommended_lto_flags
+        juce::juce_recommended_warning_flags
+)
+
+target_compile_definitions(VocalFXSuite
+    PUBLIC
+        JUCE_WEB_BROWSER=0
+        JUCE_USE_CURL=0
+)
