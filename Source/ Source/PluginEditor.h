@@ -1,3 +1,4 @@
+
 #pragma once
 
 #include <JuceHeader.h>
@@ -17,26 +18,36 @@ public:
 private:
     VocalFXAudioProcessor& audioProcessor;
 
+    // Header
     juce::Label title;
     juce::Label subtitle;
 
+    // Main controls
     juce::Slider retuneSlider;
     juce::Slider reverbSlider;
     juce::Slider delaySlider;
 
+    // Control labels
     juce::Label retuneLabel;
     juce::Label reverbLabel;
     juce::Label delayLabel;
 
-    juce::TextButton autotuneButton {"AUTOTUNE"};
-    juce::TextButton analyzeButton {"ANALIZAR MI VOZ"};
+    // Buttons
+    juce::TextButton autotuneButton { "AUTOTUNE" };
+    juce::TextButton analyzeButton { "ANALIZAR MI VOZ" };
 
+    // Parameter connections
     using SliderAttachment =
         juce::AudioProcessorValueTreeState::SliderAttachment;
+
+    using ButtonAttachment =
+        juce::AudioProcessorValueTreeState::ButtonAttachment;
 
     std::unique_ptr<SliderAttachment> retuneAttachment;
     std::unique_ptr<SliderAttachment> reverbAttachment;
     std::unique_ptr<SliderAttachment> delayAttachment;
+
+    std::unique_ptr<ButtonAttachment> autotuneAttachment;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(
         VocalFXAudioProcessorEditor)
